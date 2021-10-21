@@ -24,7 +24,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="Username"
-                    rules="required|minmax:0, 20"
+                    rules="required|minname:3|maxname:20"
                   >
                     <v-text-field
                       slot-scope="{ errors, valid }"
@@ -39,7 +39,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="Password"
-                    rules="required|minmax:6, 30"
+                    rules="required|minpass:6|maxpass:30"
                     vid="password"
                   >
                     <v-text-field
@@ -58,7 +58,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="PasswordConfirmation"
-                    rules="required|minmax:6, 30|confirmed:password"
+                    rules="required|minpass:6|maxpass:30|confirmed:password"
                   >
                     <v-text-field
                       slot-scope="{ errors, valid }"
@@ -67,7 +67,7 @@
                       :error-messages="errors"
                       :success="valid"
                       :counter="30"
-                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                      :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="show2 ? 'text' : 'password'"
                       label="Password Confirmation"
                       @click:append="show2 = !show2"
@@ -108,11 +108,36 @@ extend("email", email);
 
 extend("confirmed", confirmed);
 
-extend("minmax", {
-  validate(value, { min, max }) {
-    return value.length >= min && value.length <= max;
+extend("minname", {
+  validate(value, { min }) {
+    return value.length >= min;
   },
-  params: ["min", "max"],
+  params: ["min"],
+  message: "Your username is too short.",
+});
+
+extend("maxname", {
+  validate(value, { max }) {
+    return value.length <= max;
+  },
+  params: ["max"],
+  message: "Your username is too long.",
+});
+
+extend("minpass", {
+  validate(value, { min }) {
+    return value.length >= min;
+  },
+  params: ["min"],
+  message: "Your password is too short.",
+});
+
+extend("maxpass", {
+  validate(value, { max }) {
+    return value.length <= max;
+  },
+  params: ["max"],
+  message: "Your password is too long.",
 });
 
 extend("required", {
