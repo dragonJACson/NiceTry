@@ -24,7 +24,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="Username"
-                    rules="required|minname:3|maxname:20"
+                    rules="required|min:3|max:20|name"
                   >
                     <v-text-field
                       slot-scope="{ errors, valid }"
@@ -39,7 +39,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="Password"
-                    rules="required|minpass:6|maxpass:30"
+                    rules="required|min:6|max:30|pass"
                     vid="password"
                   >
                     <v-text-field
@@ -58,7 +58,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="PasswordConfirmation"
-                    rules="required|minpass:6|maxpass:30|confirmed:password"
+                    rules="required|min:6|max:30|confirmed:password"
                   >
                     <v-text-field
                       slot-scope="{ errors, valid }"
@@ -104,40 +104,46 @@ import BackgroundImage from "./BackgroundImage.vue";
 
 import User from "../models/user";
 
+const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
+const PASSWORD_REGEX = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).+$/;
+
 extend("email", email);
 
-extend("confirmed", confirmed);
+extend("confirmed", {
+  ...confirmed,
+  message: "Two passwords aren't consistent.",
+});
 
-extend("minname", {
+extend("min", {
   validate(value, { min }) {
     return value.length >= min;
   },
   params: ["min"],
-  message: "Your username is too short.",
+  message: "The {_field_} must have at least {min} characters",
 });
 
-extend("maxname", {
+extend("max", {
   validate(value, { max }) {
     return value.length <= max;
   },
   params: ["max"],
-  message: "Your username is too long.",
+  message: "The {_field_} must have at most {max} characters",
 });
 
-extend("minpass", {
-  validate(value, { min }) {
-    return value.length >= min;
+extend("name", {
+  validate(value) {
+    return USERNAME_REGEX.test(value);
   },
-  params: ["min"],
-  message: "Your password is too short.",
+  message:
+    "The {_field_} should only contain upper / lower letters / digit / underscore",
 });
 
-extend("maxpass", {
-  validate(value, { max }) {
-    return value.length <= max;
+extend("pass", {
+  validate(value) {
+    return PASSWORD_REGEX.test(value);
   },
-  params: ["max"],
-  message: "Your password is too long.",
+  message:
+    "The {_field_} must contain at least a upper letter, a lower letter and a digit",
 });
 
 extend("required", {
