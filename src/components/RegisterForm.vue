@@ -58,7 +58,7 @@
                   </ValidationProvider>
                   <ValidationProvider
                     name="PasswordConfirmation"
-                    rules="required|min:6|max:30|confirmed:password"
+                    rules="required|confirmed:password"
                   >
                     <v-text-field
                       slot-scope="{ errors, valid }"
@@ -89,6 +89,26 @@
               </v-card-actions>
             </v-card>
           </ValidationObserver>
+          <v-dialog v-model="dialog" width="500">
+            <v-card>
+              <v-card-title class="text-h5 red white--text elevation-5">
+                Error
+              </v-card-title>
+
+              <v-card-text>
+                {{ error_message }}
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" text @click="dialog = false">
+                  I accept
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-flex>
       </v-layout>
     </v-container>
@@ -157,6 +177,8 @@ export default {
     show2: false,
     user: new User("", ""),
     password_confirmation: "",
+    dialog: false,
+    error_message: "",
   }),
   components: {
     ValidationProvider,
@@ -169,7 +191,8 @@ export default {
       this.snackbar = true;
     },
     async clear() {
-      this.username = this.password = "";
+      this.user.username = this.user.password = this.user.email = this.password_confirmation =
+        "";
       this.$nextTick(() => {
         this.$refs.obs.reset();
       });
@@ -181,10 +204,14 @@ export default {
           this.$router.push("/");
         },
         (error) => {
-          this.message =
-            (error.response && error.response.data) ||
-            error.message ||
-            error.toString();
+          if (error.response.status === 422) {
+            return;
+          } else if (error.response.status === 409) {
+            this.error_message = error.response.data.detail;
+            this.dialog = true;
+            this.user.username = this.user.email = "";
+            return;
+          }
         }
       );
     },
